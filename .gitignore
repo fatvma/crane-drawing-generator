@@ -1,0 +1,14 @@
+# Python virtual environment (we create it in the next step)
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local database (created automatically when the app runs)
+*.db
+
+# Secrets and editor/OS clutter
+.env
+.DS_Store
