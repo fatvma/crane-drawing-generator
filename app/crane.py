@@ -33,6 +33,10 @@ WHEEL_BASE_SPAN_RATIO = 6.6
 HOOK_APPROACH_LEFT_MM = 920
 HOOK_APPROACH_RIGHT_MM = 1150
 
+# Reference plan view: end carriage length about 4310 vs wheel base 3800,
+# so about 510 mm longer than the wheel base. Confidence: low.
+END_CARRIAGE_EXTRA_MM = 510
+
 # ---- Pure estimates (NOT from a verified source) --------------------------
 # Girder depth = span / 20, at least 400 mm. This is my own rough guess from
 # general knowledge so the drawing looks plausible. I could not find a
@@ -73,11 +77,13 @@ def _round10(value):
 def compute_design(span_m, capacity_t, lifting_height_m, duty_group):
     """Return the dimensions (mm), where each came from, and any warnings."""
     span_mm = int(round(span_m * 1000))
+    wheel_base_mm = _round10(span_mm / WHEEL_BASE_SPAN_RATIO)
 
     dimensions = {
         "span_mm": span_mm,
         "overall_length_mm": span_mm + OVERALL_LENGTH_EXTRA_MM,
-        "wheel_base_mm": _round10(span_mm / WHEEL_BASE_SPAN_RATIO),
+        "wheel_base_mm": wheel_base_mm,
+        "end_carriage_length_mm": wheel_base_mm + END_CARRIAGE_EXTRA_MM,
         "girder_depth_mm": max(
             GIRDER_DEPTH_MIN_MM, _round10(span_mm / GIRDER_DEPTH_SPAN_RATIO)
         ),
@@ -90,6 +96,7 @@ def compute_design(span_m, capacity_t, lifting_height_m, duty_group):
         "span_mm": "User input.",
         "overall_length_mm": "Span + 270 mm, from one data point in the reference drawing. Estimate.",
         "wheel_base_mm": "Span / 6.6, from one data point in the reference drawing. Estimate.",
+        "end_carriage_length_mm": "Wheel base + 510 mm, from one data point in the reference drawing (4310 vs 3800). Estimate.",
         "girder_depth_mm": "Span / 20 (min 400 mm). Unverified guess, no source. Estimate.",
         "lifting_height_mm": "User input.",
         "hook_approach_left_mm": "Read from the reference drawing (10 t crane). Estimate.",

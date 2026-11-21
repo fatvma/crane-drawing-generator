@@ -80,3 +80,14 @@ def test_invalid_design_is_not_saved(client):
 def test_blank_name_is_rejected(client):
     response = client.post("/api/designs", json={**GOOD, "name": "   "})
     assert response.status_code == 422
+
+def test_saved_design_has_a_drawing(client):
+    design_id = client.post("/api/designs", json=GOOD).json()["id"]
+    response = client.get(f"/api/designs/{design_id}/drawing")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("image/svg+xml")
+    assert "Workshop crane" in response.text
+
+
+def test_drawing_of_missing_design_gives_404(client):
+    assert client.get("/api/designs/999/drawing").status_code == 404

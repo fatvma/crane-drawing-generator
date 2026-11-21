@@ -1,9 +1,14 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
+from fastapi.staticfiles import StaticFiles
 
-from app import crane, database
+from app import crane, database, drawing
 from app.schemas import CraneInputs, DesignIn
+
+SVG = "image/svg+xml"
+STATIC_DIR = Path(__file__).parent / "static"
 
 
 @asynccontextmanager
@@ -67,6 +72,14 @@ def preview(inputs: CraneInputs):
     return crane.compute_design(**inputs.model_dump())
 
 
+@app.post("/api/preview/drawing")
+def preview_drawing(inputs: CraneInputs, name: str = Query(default="", max_length=80)):
+    """The drawing (SVG) for the given inputs, without saving anything.
+    The optional ?name= is only used as the title on the drawing."""
+    design = crane.compute_design(**inputs.model_dump())
+    design["name"] = name.strip()
+    return Response(drawing.build_svg(design), media_type=SVG)
+
 @app.post("/api/designs", status_code=201)
 def create_design(payload: DesignIn, conn=Depends(get_db)):
     inputs = payload.model_dump(exclude={"name"})
@@ -87,6 +100,15 @@ def get_design(design_id: int, conn=Depends(get_db)):
     return design_response(row)
 
 
+@app.get("/api/designs/{design_id}/drawing")
+def design_drawing(design_id: int, conn=Depends(get_db)):
+    """The drawing (SVG) of a saved design."""
+    row = database.get_design(conn, design_id)
+    if row is None:
+        raise not_found(design_id)
+    return Response(drawing.build_svg(design_response(row)), media_type=SVG)
+
+
 @app.put("/api/designs/{design_id}")
 def update_design(design_id: int, payload: DesignIn, conn=Depends(get_db)):
     inputs = payload.model_dump(exclude={"name"})
@@ -94,3 +116,8 @@ def update_design(design_id: int, payload: DesignIn, conn=Depends(get_db)):
     if row is None:
         raise not_found(design_id)
     return design_response(row)
+
+
+
+# The web page. This must stay LAST: it answers every address not matched above.
+app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")

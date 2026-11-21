@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crane Drawing Generator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.4 Arial, sans-serif; color: #222; background: #f4f5f7; }
+    header { padding: 14px 24px; background: #0b5394; color: white; }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 4px 0 0; font-size: 13px; opacity: 0.9; }
+    main { display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 20px; }
+    @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+    .panel { background: white; border: 1px solid #d5d8dd; border-radius: 6px; padding: 16px; }
+    label { display: block; margin-bottom: 12px; font-weight: bold; font-size: 13px; }
+    input, select { display: block; width: 100%; margin-top: 4px; padding: 7px; font-size: 15px; }
+    small { display: block; margin-top: 2px; font-weight: normal; color: #667; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    button { padding: 8px 12px; font-size: 14px; cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.5; }
+    #message { margin-top: 12px; padding: 8px 10px; border-radius: 4px; white-space: pre-line; font-size: 13px; }
+    #message.error { background: #fde8e8; color: #8a1c1c; }
+    #message.ok { background: #e6f4ea; color: #1e5a2e; }
+    h2 { margin: 20px 0 8px; font-size: 15px; }
+    #design-list { list-style: none; margin: 0; padding: 0; }
+    #design-list li { margin-bottom: 6px; }
+    #design-list button { width: 100%; text-align: left; background: #f4f5f7; border: 1px solid #ccd; border-radius: 4px; }
+    #design-list button.current { border-color: #0b5394; background: #e3eefb; font-weight: bold; }
+    #drawing { width: 100%; height: auto; border: 1px solid #d5d8dd; background: white; }
+    #download { display: inline-block; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Overhead Crane Drawing Generator</h1>
+    <p>Single girder, top-running crane. Preliminary drawings only: values marked (est.) are estimates.</p>
+  </header>
+
+  <main>
+    <div class="panel">
+      <!-- novalidate: the SERVER decides what is valid, so we can see its messages -->
+      <form id="design-form" novalidate>
+        <label>Design name
+          <input id="name" type="text" maxlength="80">
+        </label>
+        <label>Span, rail to rail (m)
+          <input id="span_m" type="number" step="any">
+          <small id="hint-span_m"></small>
+        </label>
+        <label>Capacity (tonnes)
+          <input id="capacity_t" type="number" step="any">
+          <small id="hint-capacity_t"></small>
+        </label>
+        <label>Lifting height, floor to hook (m)
+          <input id="lifting_height_m" type="number" step="any">
+          <small id="hint-lifting_height_m"></small>
+        </label>
+        <label>Duty group
+          <select id="duty_group"></select>
+        </label>
+        <div class="buttons">
+          <button type="button" id="save-new">Save as new</button>
+          <button type="button" id="update" disabled>Update opened design</button>
+          <button type="button" id="new-design">Reset</button>
+        </div>
+      </form>
+      <div id="message" hidden></div>
+
+      <h2>Saved designs</h2>
+      <ul id="design-list"></ul>
+    </div>
+
+    <div class="panel">
+      <img id="drawing" alt="Crane drawing">
+      <a id="download" download="crane.svg" href="#">Download drawing (SVG)</a>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

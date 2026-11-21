@@ -41,3 +41,11 @@ def test_limit_values_themselves_are_accepted():
     high = {"span_m": 30, "capacity_t": 20, "lifting_height_m": 30, "duty_group": "A6"}
     assert client.post("/api/preview", json=low).status_code == 200
     assert client.post("/api/preview", json=high).status_code == 200
+
+
+
+def test_home_page_is_served():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "Crane Drawing Generator" in response.text
+    assert client.get("/app.js").status_code == 200
