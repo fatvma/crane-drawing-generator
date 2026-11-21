@@ -1,4 +1,9 @@
-fastapi
-uvicorn[standard]
-pytest
-httpx
+# Direct dependencies, pinned to the versions this project was tested with.
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+pytest==9.2.0
+httpx==0.28.1
+
+# Pinned too, because they decide how validation and the test client behave.
+pydantic==2.14.4
+starlette==1.10.0
